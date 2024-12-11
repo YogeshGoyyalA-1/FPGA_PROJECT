@@ -16,7 +16,6 @@ This project implements **real-time image processing** on an **Artix-7 FPGA boar
 8. [Challenges Faced](#challenges-faced)
 9. [Results](#results)
 10. [Authors](#authors)
-11. [License](#license)
 
 ---
 
@@ -135,3 +134,104 @@ The `choice` input signal is a 2-bit control signal used to select between the a
 The filters are applied to the pixel data stored in the FPGA's Block RAM and displayed on the VGA monitor in real-time. The `threshold` input is used to control the range for the **Color Thresholding** filter, allowing for dynamic adjustment of the threshold value during operation.
 
 ---
+
+## **Setup and Usage**
+
+### **1. Generate COE File for Image**
+
+1. **Download Image**:
+   - Download an image with **320x320** resolution.
+
+2. **Run COE File Generation Script**:
+   - Place the image in the same directory as **`coe.py`**.
+   - Modify the file name in **`coe.py`** to match the image filename.
+   - Run the script to generate the COE file:
+   
+   ```bash
+   python3 coe.py
+   ```
+
+### **2. Setup the Vivado Project**
+
+1. **Add Verilog Files**:
+   - Open Vivado and create a new project.
+   - Add the **`vga_sync.v`** and **`vga_test.v`** Verilog files.
+   - Set **`vga_test.v`** as the **top module**.
+
+2. **Add Constraints File**:
+   - Include the **`.xdc`** constraints file for the **Basys 3** board to map the pins correctly.
+
+3. **Generate Block RAM IP**:
+   - Add and configure the **Block RAM** IP in Vivado.
+   - Update the COE file with the newly generated one after running the Python script.
+
+4. **Generate Bitstream**:
+   - **Synthesize**, **implement**, and **generate bitstream** in Vivado.
+
+### **3. Program the FPGA**
+
+1. **Program the FPGA**:
+   - After updating the COE file and generating the bitstream, **connect the FPGA board** to your computer via a cable.
+   - Open Vivado's **Program and Debug** interface.
+   - Select the generated bitstream file and click **Program** to upload the bitstream to the FPGA.
+
+2. **Power the FPGA**:
+   - Ensure that the **Basys 3 FPGA board** is powered on.
+
+3. **Connect VGA Monitor**:
+   - Use a **VGA cable** to connect the **VGA output** from the FPGA board to a **VGA-compatible monitor**.
+
+### **4. Running the Project**
+
+1. **Select Filters Using Switches**:
+   - The **Basys 3 FPGA board** includes **16 switches**. You can control the filters via the `choice` input.
+   - Available filter choices:
+     - `00`: Original Image (No filter applied, display the image as is)
+     - `01`: Negative Filter (Invert the image colors)
+     - `10`: Color Thresholding (Isolate colors within a threshold range)
+     - `11`: Grayscale (Convert the image to grayscale)
+
+2. **Observe the Output**:
+   - The selected filter will be applied to the image in real-time, and the processed image will be displayed on the VGA monitor.
+  
+---
+
+## **Challenges Faced**
+
+### **Color Depth Mismatch**
+- **Issue**: VGA requires 12-bit color (4 bits per channel), while images were in 24-bit color.
+- **Solution**: Downscaled the color depth during preprocessing to fit the VGA's color depth requirement.
+
+### **Block RAM Constraints**
+- **Issue**: Limited Block RAM for high-resolution images.
+- **Solution**: Reduced image resolution to **320x320** pixels to fit within the available memory.
+
+### **Timing and Synchronization**
+- **Issue**: Debugging the VGA **hsync** and **vsync** signals for proper display synchronization.
+- **Solution**: Implemented and validated precise timing parameters to ensure the signals were correctly synchronized for proper image display.
+
+---
+
+## **Results**
+
+### **Filters Demonstrated:**
+- **Negative Filter**: Inverts the colors of the image.
+- **Grayscale Conversion**: Converts the image to grayscale.
+- **Color Thresholding**: Isolates pixels based on intensity thresholds.
+
+### **Performance Metrics**:
+- **Maximum clock frequency**: **106.134 MHz**
+- **Achieved throughput**: **1273.608 Mbps**
+
+---
+
+## **Authors**
+- **Yogesh Goyal** - IMT2021542  
+- **Raghav Khurana** - IMT2022550  
+- **Divyansh Kumar** - IMT2022509  
+
+---
+
+
+
+
